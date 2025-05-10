@@ -1,19 +1,88 @@
 /* Task 1: Style the body */
 body {
-    /* insert code here */
+  font-family: "Montserrat", sans-serif;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  background-color: #f4f4f4;
 }
 
 /* Task 2: Create a pseudo-element for the background and blur */
 body::before {
-    /* insert code here */
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url(background-colors.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  filter: blur(8px);
+  z-index: -1;
 }
 
 /* Task 3: Style the content area */
 .content {
-    /* insert code here */
+  position: relative;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  z-index: 1;
+  text-align: center;
+  max-width: 1100px;
+  margin: auto;
+  padding: 20px;
+  padding-bottom: 20vh;
+  font-size: 4rem;
 }
 
 /* Task 4: Add styles for headings, paragraphs, and buttons */
-h1, h2, .lead, .btn-primary {
-    /* insert code here */
+h1 {
+  font-size: 5rem !important;
+  font-weight: 550 !important;
+}
+
+h2 {
+  font-weight: normal;
+}
+
+.lead {
+  font-style: italic;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.btn-primary {
+  background-color: pink;
+  border: 1px solid purple;
+  transition: transform 200ms ease;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: rgb(255, 213, 220);
+  border: 1px solid purple;
+  transform: scale(1.05);
+}
+.btn-primary:active,
+#btn:active {
+  background-color: rgb(255, 213, 220);
+  border: 1px solid purple;
+  transform: scale(0.95);
+}
+
+@media only screen and (max-width: 768px) {
+  h1 {
+    font-size: 3rem;
+  }
+  h2 {
+    font-size: 2.5rem;
+  }
+  .lead {
+    font-size: 1.25rem;
+  }
 }
