@@ -1,4 +1,3 @@
-// db.js
 require("dotenv").config({ path: "../util/import-mongo/.env" });
 const MongoClient = require("mongodb").MongoClient;
 
@@ -28,13 +27,6 @@ async function connectToDatabase() {
     console.error("Error connecting to MongoDB: ", error);
     throw error;
   }
-}
-
-// Self executing code when file is run directly
-if (require.main === module) {
-  connectToDatabase()
-    .then((db) => console.log("Database connection successful"))
-    .catch((err) => console.error("Database connection failed: ", err));
 }
 
 module.exports = connectToDatabase;
