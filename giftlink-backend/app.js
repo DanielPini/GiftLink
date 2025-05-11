@@ -1,5 +1,4 @@
-/*jshint esversion: 8 */
-require("dotenv").config();
+require("dotenv").config({ path: "./util/import-mongo/.env" });
 const express = require("express");
 const cors = require("cors");
 const pinoLogger = require("./logger");

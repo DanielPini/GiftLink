@@ -18,7 +18,7 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background: url(background-colors.jpg);
+  background: url(/static/background-colors.jpg);
   background-size: cover;
   background-repeat: no-repeat;
   filter: blur(8px);
@@ -85,4 +85,21 @@ h2 {
   .lead {
     font-size: 1.25rem;
   }
+}
+.homePageContainer {
+  margin-top: 3rem;
+  text-align: center;
+}
+
+.homePageHeading {
+  margin-bottom: 1.5rem;
+}
+
+.homePageSubheading {
+  margin-bottom: 2rem;
+}
+
+.homePageQuote {
+  font-style: italic;
+  margin-bottom: 2rem;
 }
