@@ -27,11 +27,23 @@ function LoginPage() {
               </label>
               <input
                 id="email"
-                type="text"
+                type="email"
                 className="form-control"
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+              />
+              <label
+                htmlFor="password"
+                className="form-label">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                className="form-control"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
 

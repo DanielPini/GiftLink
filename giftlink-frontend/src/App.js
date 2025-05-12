@@ -1,14 +1,15 @@
 import React from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import MainPage from "./components/MainPage/MainPage";
 import Navbar from "./components/Navbar/Navbar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import LoginPage from "./components/LoginPage/LoginPage";
 import RegisterPage from "./components/RegisterPage/RegisterPage";
+import DetailsPage from "./components/DetailsPage/DetailsPage";
 
 function App() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   return (
     <>
       <Navbar />
@@ -31,9 +32,13 @@ function App() {
           element={<RegisterPage />}
         />
         <Route
+          path="/app/products/:productId"
+          element={<DetailsPage />}
+        />
+        {/* <Route
           path="*"
           element={<MainPage />}
-        />
+        /> */}
       </Routes>
     </>
   );
