@@ -28,6 +28,13 @@ export default function Navbar() {
               Gifts
             </Link>
           </li>
+          <li className="nav-item">
+            <Link
+              to="/app/search"
+              className="nav-link">
+              Search
+            </Link>
+          </li>
         </ul>
       </div>
     </nav>
