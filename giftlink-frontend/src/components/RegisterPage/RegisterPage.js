@@ -1,15 +1,49 @@
 import React, { useState } from "react";
 
 import "./RegisterPage.css";
+import { urlConfig } from "../../config";
+import { useAppContext } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 function RegisterPage() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showerr, setShowerr] = useState("");
+  const navigate = useNavigate();
+  const { setIsLoggedIn } = useAppContext();
 
   const handleRegister = async () => {
-    console.log(firstName, lastName, email, password);
+    try {
+      const res = await fetch(`${urlConfig.backendUrl}/api/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          email,
+          password,
+        }),
+      });
+
+      const json = await res.json();
+
+      if (json.authtoken) {
+        sessionStorage.setItem("auth-token", json.authtoken);
+        sessionStorage.setItem("name", firstName);
+        sessionStorage.setItem("email", json.email);
+        setIsLoggedIn(true);
+        navigate("/app/main");
+      }
+      if (json.error) {
+        setShowerr("Registration failed. Please try again.", json.error);
+      }
+    } catch (e) {
+      console.error("Error during registration: ", e.message);
+    }
   };
 
   return (
@@ -74,6 +108,7 @@ function RegisterPage() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
+            <div className="text-danger">{showerr}</div>
             <button
               className="btn btn-primary w-100 mb-3"
               onClick={handleRegister}>
