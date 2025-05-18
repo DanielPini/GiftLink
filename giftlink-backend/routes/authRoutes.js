@@ -7,7 +7,6 @@ const connectToDatabase = require("../models/db");
 const router = express.Router();
 const dotenv = require("dotenv");
 const pino = require("pino"); // Import Pino logger
-const { body, validationResult } = require("express-validator");
 
 const logger = pino(); // Create a Pino logger instance
 
@@ -121,13 +120,14 @@ router.post("/login", async (req, res) => {
 });
 
 router.put("/update", async (req, res) => {
-  try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      logger.error("Validation errors in update request", errors.array());
-      return res.status(400).json({ errors: errors.array() });
-    }
+  const errors = validationResult(req);
 
+  if (!errors.isEmpty()) {
+    logger.error("Validation errors in update request", errors.array());
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  try {
     const email = req.headers.email;
 
     if (!email) {
@@ -141,6 +141,15 @@ router.put("/update", async (req, res) => {
     const collection = db.collection("users");
 
     const existingUser = await collection.findOne({ email });
+
+    if (!existingUser) {
+      logger.error("User not found");
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    existingUser.firstName = req.body.name;
+    existingUser.updatedAt = new Date();
+
     const updatedUser = await collection.findOneAndUpdate(
       { email },
       { $set: existingUser },
@@ -154,9 +163,12 @@ router.put("/update", async (req, res) => {
     };
 
     const authtoken = jwt.sign(payload, JWT_SECRET);
-    res.json({ authtoken, updatedUser });
+    logger.info("User updated successfully");
+
+    res.json({ authtoken });
   } catch (e) {
-    console.log("Error: " + e.message);
+    logger.error(e);
+    return res.status(500).send("Internal Server Error");
   }
 });
 

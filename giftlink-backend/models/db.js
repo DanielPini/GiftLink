@@ -21,7 +21,7 @@ async function connectToDatabase() {
     // Task 1: Connect to MongoDB
     await client.connect();
 
-    // Task 2: Connect to database giftDB and store in variable dbInstance
+    // Task 2: Connect to database giftsDB and store in variable dbInstance
     dbInstance = client.db(dbName);
 
     // Task 3: Return database instance

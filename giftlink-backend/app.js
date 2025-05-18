@@ -8,7 +8,12 @@ const connectToDatabase = require("./models/db");
 const { loadData } = require("./util/import-mongo/index");
 
 const app = express();
-app.use("*", cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
 const port = 3060;
 
 // Connect to MongoDB; we just do this one time
@@ -38,6 +43,15 @@ app.use("/api/search", searchRoutes);
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).send("Internal Server Error");
+});
+
+/**
+ * Remove later!!
+ * Temporary Logging of Requests
+ */
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
 });
 
 app.get("/", (req, res) => {
