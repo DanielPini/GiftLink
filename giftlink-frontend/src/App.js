@@ -8,6 +8,7 @@ import LoginPage from "./components/LoginPage/LoginPage";
 import RegisterPage from "./components/RegisterPage/RegisterPage";
 import DetailsPage from "./components/DetailsPage/DetailsPage";
 import SearchPage from "./components/SearchPage/SearchPage";
+import { Navigate } from "react-router-dom";
 
 function App() {
   // const navigate = useNavigate();
@@ -39,6 +40,10 @@ function App() {
         <Route
           path="/app/search"
           element={<SearchPage />}
+        />
+        <Route
+          path="/app/main"
+          element={<Navigate to="/app" />}
         />
         {/* <Route
           path="*"

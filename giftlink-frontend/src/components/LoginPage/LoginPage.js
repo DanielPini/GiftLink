@@ -1,14 +1,66 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./LoginPage.css";
+import { urlConfig } from "../../config";
+import { useAppContext } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
   //insert code here to create useState hook variables for email, password
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [incorrect, setIncorrect] = useState("");
+  const navigate = useNavigate();
+  const bearerToken = sessionStorage.getItem("bearer-token");
+  const { setIsLoggedIn } = useAppContext();
+
+  useEffect(() => {
+    if (sessionStorage.getItem("auth-token")) {
+      navigate("/app");
+    }
+  }, [navigate]);
 
   // insert code here to create handleLogin function and include console.log
   const handleLogin = async () => {
-    console.log("Login handled");
+    try {
+      // Implement API call
+      const response = await fetch("/api/auth/login", {
+        // Set method
+        method: "POST",
+        // Set headers
+        headers: {
+          "content-type": "application/json",
+          Authorization: bearerToken ? `Bearer ${bearerToken}` : "", // Include bearer token if available
+        },
+        // Set body to send user details
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      });
+      // Access data and set user details
+
+      const json = await response.json();
+      console.log("JSON: " + json);
+
+      if (json.authtoken) {
+        sessionStorage.setItem("auth-token", json.authtoken);
+        sessionStorage.setItem("name", json.userName);
+        sessionStorage.setItem("email", json.userEmail);
+
+        setIsLoggedIn(true);
+        navigate("/app");
+      } else {
+        setEmail("");
+        setPassword("");
+        setIncorrect("Wrong password. Try again.");
+
+        setTimeout(() => {
+          setIncorrect("");
+        }, 2000);
+      }
+    } catch (error) {
+      console.log("Error fetching details: " + error.message);
+    }
   };
 
   return (
@@ -45,6 +97,15 @@ function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+              <span
+                style={{
+                  color: "red",
+                  display: "block",
+                  fontStyle: "italic",
+                  fontSize: "12px",
+                }}>
+                {incorrect}
+              </span>
             </div>
 
             {/* insert code here to create a button that performs the `handleLogin` function on click */}

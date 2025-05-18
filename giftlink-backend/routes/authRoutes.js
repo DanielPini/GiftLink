@@ -7,6 +7,7 @@ const connectToDatabase = require("../models/db");
 const router = express.Router();
 const dotenv = require("dotenv");
 const pino = require("pino"); // Import Pino logger
+const { body, validationResult } = require("express-validator");
 
 const logger = pino(); // Create a Pino logger instance
 
@@ -14,77 +15,148 @@ dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-router.post("/register", async (req, res) => {
-  try {
-    // Task 1: Connect to `giftsdb` in MongoDB through `connectToDatabase` in `db.js`
-    const db = await connectToDatabase();
+router.post(
+  "/register",
+  [body("email").isEmail(), body("password").isLength({ min: 5 })],
+  async (req, res) => {
+    console.log("Registering user. Request body: ", req.body);
 
-    // Task 2: Access MongoDB collection
-    const collection = db.collection("users");
+    const errors = validationResult(req);
 
-    //Task 3: Check for existing email
-    const existingEmail = await collection.findOne({ email: req.body.email });
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
 
-    const salt = await bcryptjs.genSalt(10);
-    const hash = await bcryptjs.hash(req.body.password, salt);
-    const email = req.body.email;
+    try {
+      // Task 1: Connect to `giftsdb` in MongoDB through `connectToDatabase` in `db.js`
+      const db = await connectToDatabase();
 
-    //Task 4: Save user details in database
-    const newUser = await collection.insertOne({
-      email: req.body.email,
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      password: hash,
-      createdAt: new Date(),
-    });
+      if (!db) {
+        logger.error("Database connection failed");
+        return res.status(500).json({ error: "DB connection failed" });
+      }
 
-    const payload = {
-      user: {
-        id: newUser.insertedId,
-      },
-    };
+      // Task 2: Access MongoDB collection
+      const collection = db.collection("users");
 
-    const authtoken = jwt.sign(payload, JWT_SECRET);
-    logger.info("User registered successfully");
-    res.json({ authtoken, email });
-  } catch (e) {
-    return res.status(500).send("Internal server error");
+      //Task 3: Check for existing email
+      const existingEmail = await collection.findOne({ email: req.body.email });
+
+      const salt = await bcryptjs.genSalt(10);
+      const hash = await bcryptjs.hash(req.body.password, salt);
+      const email = req.body.email;
+
+      //Task 4: Save user details in database
+      const newUser = await collection.insertOne({
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        password: hash,
+        createdAt: new Date(),
+      });
+
+      if (!newUser.acknowledged) {
+        logger.error("User insert not acknowledged by MongoDB");
+        return res.status(500).json({ error: "Database insert failed" });
+      }
+
+      console.log(newUser);
+
+      const payload = {
+        user: {
+          id: newUser.insertedId,
+        },
+      };
+
+      const authtoken = jwt.sign(payload, JWT_SECRET);
+
+      logger.info("User registered successfully");
+      res.json({ authtoken, email });
+    } catch (e) {
+      logger.error("Registration error: ", e);
+      return res.status(500).json({ error: "Internal server error" });
+    }
   }
-});
+);
 
 router.post("/login", async (req, res) => {
+  console.log("\n\n Inside login");
   try {
-    // ...
     const db = await connectToDatabase();
-
+    if (!db) {
+      logger.error("Database connection failed");
+      return res.status(500).json({ error: "DB connection failed" });
+    }
     const collection = db.collection("users");
 
     const theUser = await collection.findOne({ email: req.body.email });
 
-    if (theUser) {
-      let result = await bcryptjs.compare(req.body.password, theUser.password);
-      if (!result) {
-        logger.error("Passwords do not match");
-        return res.status(404).json({ error: "Wrong password" });
-      }
-      const userName = theUser.firstName;
-      const userEmail = theUser.email;
-
-      let payload = {
-        user: {
-          id: theUser._id.toString(),
-        },
-      };
-
-      jwt.sign(user._id, JWT_SECRET);
-    } else {
+    if (!theUser) {
       logger.error("User not found");
       return res.status(404).json({ error: "User not found" });
     }
+    const passwordMatch = await bcryptjs.compare(
+      req.body.password,
+      theUser.password
+    );
+    if (!passwordMatch) {
+      logger.error("Passwords do not match");
+      return res.status(404).json({ error: "Wrong password" });
+    }
+
+    const payload = {
+      user: {
+        id: theUser._id.toString(),
+      },
+    };
+
+    const authtoken = jwt.sign(payload, JWT_SECRET);
+    const userName = theUser.firstName;
+    const userEmail = theUser.email;
 
     res.json({ authtoken, userName, userEmail });
   } catch (e) {
     return res.status(500).send("Internal server error: ", e);
+  }
+});
+
+router.put("/update", async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      logger.error("Validation errors in update request", errors.array());
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const email = req.headers.email;
+
+    if (!email) {
+      logger.error("Email not found in the request headers");
+      return res
+        .status(400)
+        .json({ error: "Email not found in the reqest headers" });
+    }
+
+    const db = await connectToDatabase();
+    const collection = db.collection("users");
+
+    const existingUser = await collection.findOne({ email });
+    const updatedUser = await collection.findOneAndUpdate(
+      { email },
+      { $set: existingUser },
+      { returnDocument: "after" }
+    );
+
+    const payload = {
+      user: {
+        id: updatedUser._id.toString(),
+      },
+    };
+
+    const authtoken = jwt.sign(payload, JWT_SECRET);
+    res.json({ authtoken, updatedUser });
+  } catch (e) {
+    console.log("Error: " + e.message);
   }
 });
 

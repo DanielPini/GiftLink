@@ -39,7 +39,8 @@ function RegisterPage() {
         navigate("/app/main");
       }
       if (json.error) {
-        setShowerr("Registration failed. Please try again.", json.error);
+        setShowerr("Registration failed. Please try again.");
+        console.error(json.error);
       }
     } catch (e) {
       console.error("Error during registration: ", e.message);

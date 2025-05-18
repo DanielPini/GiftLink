@@ -1,11 +1,14 @@
-require("dotenv").config({ path: "../util/import-mongo/.env" });
 const MongoClient = require("mongodb").MongoClient;
+const dotenv = require("dotenv");
+
+dotenv.config({ path: "../util/import-mongo/.env" });
+
+let dbInstance = null;
 
 // MongoDB connection URL with authentication options
 let url = `${process.env.MONGO_URL}`;
 
-let dbInstance = null;
-const dbName = "giftdb";
+const dbName = `${process.env.DB_NAME}`;
 
 async function connectToDatabase() {
   try {
