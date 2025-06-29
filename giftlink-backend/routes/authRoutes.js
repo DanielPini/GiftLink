@@ -41,6 +41,19 @@ router.post(
       //Task 3: Check for existing email
       const existingEmail = await collection.findOne({ email: req.body.email });
 
+      if (existingEmail) {
+        logger.warn(
+          "Registration attempt with already registered email:",
+          req.body.email
+        );
+        return res
+          .status(409)
+          .json({
+            success: false,
+            error: "Email already associate with an existing account.",
+          });
+      }
+
       const salt = await bcryptjs.genSalt(10);
       const hash = await bcryptjs.hash(req.body.password, salt);
       const email = req.body.email;

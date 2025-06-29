@@ -19,6 +19,7 @@
   "scripts": {
     "start": "PORT=3000 react-scripts start",
     "build": "react-scripts build",
+    "postbuild": "cp -r build ../giftwebsite/",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

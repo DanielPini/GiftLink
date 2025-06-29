@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: giftapp
+  labels:
+    app: giftapp
+    environment: production
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: giftapp
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: giftapp
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3060"
+    spec:
+      containers:
+        - name: giftapp-container
+          image: us.icr.io/sn-labs-daniel123448/giftapp
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 3060
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          env:
+            - name: MONGO_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: giftapp-config
+                  key: mongo-url
+            - name: NODE_ENV
+              value: "production"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+      imagePullSecrets:
+        - name: icr
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gift-app-service
+  labels:
+    app: giftapp
+spec:
+  type: NodePort
+  ports:
+    - name: http
+      port: 80
+      targetPort: 3060
+      protocol: TCP
+  selector:
+    app: giftapp
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: giftapp-config
+data:
+  mongo-url: "mongodb://mongodb-service:27017/giftsdb"

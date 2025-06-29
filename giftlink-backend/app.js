@@ -34,6 +34,45 @@ const logger = require("./logger");
 
 app.use(pinoHttp({ logger }));
 
+// Health check endpoint
+app.get("/health", async (req, res) => {
+  try {
+    // Check database connection
+    const db = await connectToDatabase();
+    if (!db) {
+      return res.status(503).json({
+        status: "unhealthy",
+        timestamp: new Date().toISOString(),
+        checks: {
+          database: "failed",
+          server: "healthy",
+        },
+      });
+    }
+
+    // If we get here, all checks passed
+    res.status(200).json({
+      status: "healthy",
+      timestamp: new Date().toISOString(),
+      checks: {
+        database: "healthy",
+        server: "healthy",
+      },
+      version: process.env.npm_package_version || "1.0.0",
+    });
+  } catch (error) {
+    logger.error("Health check failed:", error);
+    res.status(503).json({
+      status: "unhealthy",
+      timestamp: new Date().toISOString(),
+      checks: {
+        database: "failed",
+        server: "healthy",
+      },
+    });
+  }
+});
+
 // Use Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/gifts", giftRoutes);
