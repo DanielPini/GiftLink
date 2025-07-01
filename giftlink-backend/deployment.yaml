@@ -39,10 +39,14 @@ spec:
               cpu: "500m"
           env:
             - name: MONGO_URL
+              value: "mongodb://mongodb-service:27017"
+            - name: DB_NAME
+              value: "giftsdb"
+            - name: JWT_SECRET
               valueFrom:
-                configMapKeyRef:
-                  name: giftapp-config
-                  key: mongo-url
+                secretKeyRef:
+                  name: giftapp-secrets
+                  key: jwt-secret
             - name: NODE_ENV
               value: "production"
           livenessProbe:

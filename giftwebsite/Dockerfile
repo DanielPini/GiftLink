@@ -1,11 +1,16 @@
 # Use a specific Node.js version for better security and stability
-FROM node:20.11-slim
+FROM node:20-slim
 
 # Create non-root user for security
 RUN groupadd -r nodeapp && useradd -r -g nodeapp nodeapp
 
 # Set working directory
 WORKDIR /usr/src/app
+
+# Install curl for healthcheck
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy package files
 COPY package*.json ./
@@ -16,8 +21,7 @@ RUN npm ci --production && \
     # Remove npm after installation for security
     apt-get remove -y npm && \
     apt-get autoremove -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get clean
 
 # Copy application code
 COPY --chown=nodeapp:nodeapp . .
