@@ -43,10 +43,13 @@ spec:
             - name: DB_NAME
               value: "giftsdb"
             - name: JWT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: giftapp-secrets
-                  key: jwt-secret
+              value: "mysecret"
+            - name: FRONTEND_URL
+              value: "https://daniel123448-9000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai"
+            - name: NODE_ENV
+              value: "production"
+            - name: CORS_ORIGIN
+              value: "https://daniel123448-9000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai"
           livenessProbe:
             httpGet:
               path: /health

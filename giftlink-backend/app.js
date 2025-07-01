@@ -10,8 +10,11 @@ const { loadData } = require("./util/import-mongo/index");
 const app = express();
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin:
+      "https://daniel123448-9000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai",
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 const port = 3060;

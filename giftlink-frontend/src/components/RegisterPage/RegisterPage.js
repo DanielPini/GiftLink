@@ -16,11 +16,15 @@ function RegisterPage() {
 
   const handleRegister = async () => {
     try {
+     console.log('Attempting registration with:', urlConfig.backendUrl);
+
       const res = await fetch(`${urlConfig.backendUrl}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Accept": "application/json",
         },
+        credentials: 'include',
         body: JSON.stringify({
           firstName,
           lastName,
@@ -28,6 +32,13 @@ function RegisterPage() {
           password,
         }),
       });
+
+      if (!response.ok) {
+      const errorData = await response.json();
+      setShowerr(errorData.message || 'Registration failed');
+      console.error('Registration error:', errorData);
+      return;
+    }
 
       const json = await res.json();
 

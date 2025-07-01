@@ -16,11 +16,9 @@ RUN apt-get update && \
 COPY package*.json ./
 
 # Install dependencies and clean up
-RUN npm ci --production && \
+RUN npm ci --omit=dev && \
     npm cache clean --force && \
     # Remove npm after installation for security
-    apt-get remove -y npm && \
-    apt-get autoremove -y && \
     apt-get clean
 
 # Copy application code

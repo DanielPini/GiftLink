@@ -3,7 +3,6 @@ FROM node:20-slim
 
 # Update packages and install required dependencies
 RUN apt-get update && \
-    apt-get upgrade -y && \
     apt-get install -y --no-install-recommends curl && \
     rm -rf /var/lib/apt/lists/*
 
@@ -17,11 +16,9 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --production && \
+RUN npm ci --omit=dev && \
     npm cache clean --force && \
     # Remove npm after installation for security
-    apt-get remove -y npm && \
-    apt-get autoremove -y && \
     apt-get clean
 
 # Copy application code
