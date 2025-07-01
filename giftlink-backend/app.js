@@ -10,13 +10,17 @@ const { loadData } = require("./util/import-mongo/index");
 const app = express();
 app.use(
   cors({
-    origin:
+    origin: [
+      "https://daniel123448-9000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai",
       "https://daniel123448-9000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai",
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "Accept"],
+    optionsSuccessStatus: 200,
   })
 );
+
 const port = 3060;
 
 // Connect to MongoDB; we just do this one time
