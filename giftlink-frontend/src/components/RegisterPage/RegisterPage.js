@@ -33,7 +33,7 @@ function RegisterPage() {
         }),
       });
 
-      if (!response.ok) {
+      if (!res.ok) {
       const errorData = await response.json();
       setShowerr(errorData.message || 'Registration failed');
       console.error('Registration error:', errorData);
