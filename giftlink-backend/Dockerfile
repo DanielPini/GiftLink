@@ -1,12 +1,14 @@
-# Use a specific version of Node.js with alpine for a smaller footprint
+# Use a specific Node.js version for better security and stability
 FROM node:20-slim
 
-# Update Alpine packages to fix vulnerabilities
-RUN apk update && apk upgrade --no-cache
+# Update packages and install required dependencies
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
 
 # Add non-root user for security
-RUN addgroup -S nodeapp && \
-    adduser -S -G nodeapp nodeapp
+RUN groupadd -r nodeapp && useradd -r -g nodeapp nodeapp
 
 # Set working directory
 WORKDIR /usr/src/app
@@ -15,11 +17,12 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install dependencies
-# Use --production flag to exclude devDependencies
-# Use ci instead of install for consistent installations
 RUN npm ci --production && \
-    # Clean npm cache
-    npm cache clean --force
+    npm cache clean --force && \
+    # Remove npm after installation for security
+    apt-get remove -y npm && \
+    apt-get autoremove -y && \
+    apt-get clean
 
 # Copy application code
 COPY --chown=nodeapp:nodeapp . .
@@ -30,9 +33,9 @@ USER nodeapp
 # Expose port
 EXPOSE 3060
 
-# Health check
+# Health check using curl instead of wget
 HEALTHCHECK --interval=30s --timeout=3s \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:3060/health || exit 1
+    CMD curl -f http://localhost:3060/health || exit 1
 
 # Set Node.js to run in production mode
 ENV NODE_ENV=production
