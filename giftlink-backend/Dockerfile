@@ -1,5 +1,5 @@
 # Use a specific version of Node.js with alpine for a smaller footprint
-FROM node:20-alpine
+FROM node:20-slim
 
 # Update Alpine packages to fix vulnerabilities
 RUN apk update && apk upgrade --no-cache

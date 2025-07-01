@@ -47,8 +47,6 @@ spec:
                 secretKeyRef:
                   name: giftapp-secrets
                   key: jwt-secret
-            - name: NODE_ENV
-              value: "production"
           livenessProbe:
             httpGet:
               path: /health
