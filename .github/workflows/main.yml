@@ -1,4 +1,4 @@
-name: 'CI/CD'
+name: "CI/CD"
 on:
   push:
     branches: [master, main]
@@ -6,9 +6,9 @@ on:
     branches: [master, main]
 jobs:
   lint_js:
-      name: Lint JavaScript Files
-      runs-on: ubuntu-latest
-      steps:
+    name: Lint JavaScript Files
+    runs-on: ubuntu-latest
+    steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
       - name: Install Node.js
@@ -26,9 +26,9 @@ jobs:
           find ./giftlink-backend -name searchRoutes.js -exec jshint {} +
           echo "Linted all the js files successfully"
   client_build:
-      name: Build client
-      runs-on: ubuntu-latest
-      steps:
+    name: Build client
+    runs-on: ubuntu-latest
+    steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
       - name: Install Node.js
@@ -38,6 +38,8 @@ jobs:
       - name: Run build
         run: |
           cd giftlink-frontend
-          npm install
-          npm run build
+          HUSKY=0 npm install
+          HUSKY=0 npm run build
           echo "Client-side build successfully"
+        env:
+          CI: true
