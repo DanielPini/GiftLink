@@ -49,7 +49,7 @@ spec:
             - name: NODE_ENV
               value: "production"
             - name: CORS_ORIGIN
-              value: "https://daniel123448-9000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai"
+              value: "*"
           livenessProbe:
             httpGet:
               path: /health
