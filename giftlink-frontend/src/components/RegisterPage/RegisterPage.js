@@ -14,49 +14,53 @@ function RegisterPage() {
   const navigate = useNavigate();
   const { setIsLoggedIn } = useAppContext();
 
-  const handleRegister = async () => {
+const handleRegister = async () => {
+  try {
+    const apiUrl = `${urlConfig.backendUrl}/api/auth/register`;
+    console.log('Attempting registration with:', apiUrl);
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        firstName,
+        lastName,
+        email,
+        password,
+      }),
+    });
+
+    // Log the response for debugging
+    console.log('Response status:', response.status);
+    const responseText = await response.text();
+    console.log('Response body:', responseText);
+
+    // Try to parse as JSON if possible
+    let data;
     try {
-     console.log('Attempting registration with:', urlConfig.backendUrl);
-
-      const res = await fetch(`${urlConfig.backendUrl}/api/auth/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          firstName,
-          lastName,
-          email,
-          password,
-        }),
-      });
-
-      if (!res.ok) {
-      const errorData = await res.json();
-      setShowerr(errorData.message || 'Registration failed');
-      console.error('Registration error:', errorData);
-      return;
-    }
-
-      const json = await res.json();
-
-      if (json.authtoken) {
-        sessionStorage.setItem("auth-token", json.authtoken);
-        sessionStorage.setItem("name", firstName);
-        sessionStorage.setItem("email", json.email);
-        setIsLoggedIn(true);
-        navigate("/app/main");
-      }
-      if (json.error) {
-        setShowerr("Registration failed. Please try again.");
-        console.error(json.error);
-      }
+      data = JSON.parse(responseText);
     } catch (e) {
-      console.error("Error during registration: ", e.message);
+      throw new Error(`Invalid JSON response: ${responseText}`);
     }
-  };
+
+    if (data.authtoken) {
+      sessionStorage.setItem('auth-token', data.authtoken);
+      sessionStorage.setItem('name', firstName);
+      sessionStorage.setItem('email', data.email);
+      setIsLoggedIn(true);
+      navigate('/app/main');
+    } else {
+      setShowerr(data.error || 'Registration failed');
+    }
+  } catch (e) {
+    console.error('Error during registration:', e);
+    setShowerr(`Registration failed: ${e.message}`);
+  }
+};
 
   return (
     <div className="container mt-5">
